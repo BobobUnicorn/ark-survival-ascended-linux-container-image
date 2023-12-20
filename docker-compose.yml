@@ -1,13 +1,13 @@
 version: "3.3"
 services:
-  asa-server-1:
-    container_name: asa-server-1
-    hostname: asa-server-1
+  asa-server:
+    container_name: asa-server
+    hostname: asa-server
     entrypoint: "/usr/bin/start_server"
     user: gameserver
     image: "mschnitzer/asa-linux-server:latest"
     environment:
-      - ASA_START_PARAMS=TheIsland_WP?listen?Port=7777?RCONPort=27020?RCONEnabled=True -WinLiveMaxPlayers=50
+      - ASA_START_PARAMS=TheIsland_WP?listen?Port=7777?RCONPort=27020?RCONEnabled=True -WinLiveMaxPlayers=50 -NoBattlEye -mods=929868
       - ENABLE_DEBUG=0
     ports:
       # Game port for player connections through the server browser
@@ -15,57 +15,32 @@ services:
       # RCON port for remote server administration
       - 0.0.0.0:27020:27020/tcp
     depends_on:
-      - set-permissions-1
+      - set-permissions
     volumes:
-      - steam-1:/home/gameserver/Steam:rw
-      - steamcmd-1:/home/gameserver/steamcmd:rw
-      - server-files-1:/home/gameserver/server-files:rw
+      - steam:/home/gameserver/Steam:rw
+      - steamcmd:/home/gameserver/steamcmd:rw
+      - server-files:/home/gameserver/server-files:rw
+      - ./root/usr/bin/start_server:/usr/bin/start_server:ro
+      - type: bind
+        source: $HOME/.local/share/asa-server/saved/
+        target: /home/gameserver/saved/
+        read_only: false
+        bind:
+          create_host_path: false
     networks:
       asa-network:
-  set-permissions-1:
+  set-permissions:
     entrypoint: "/bin/bash -c 'chown -R 25000:25000 /steam ; chown -R 25000:25000 /steamcmd ; chown -R 25000:25000 /server-files'"
     user: root
     image: "opensuse/leap"
     volumes:
-      - steam-1:/steam:rw
-      - steamcmd-1:/steamcmd:rw
-      - server-files-1:/server-files:rw
-#  asa-server-2:
-#    container_name: asa-server-2
-#    hostname: asa-server-2
-#    entrypoint: "/usr/bin/start_server"
-#    user: gameserver
-#    image: "mschnitzer/asa-linux-server:latest"
-#    environment:
-#      - ASA_START_PARAMS=TheIsland_WP?listen?Port=7778?RCONPort=27021?RCONEnabled=True -WinLiveMaxPlayers=50
-#    ports:
-#      # Game port for player connections through the server browser
-#      - 0.0.0.0:7778:7778/udp
-#      # RCON port for remote server administration
-#      - 0.0.0.0:27021:27021/tcp
-#    depends_on:
-#      - set-permissions-2
-#    volumes:
-#      - steam-2:/home/gameserver/Steam:rw
-#      - steamcmd-2:/home/gameserver/steamcmd:rw
-#      - server-files-2:/home/gameserver/server-files:rw
-#    networks:
-#      asa-network:
-#  set-permissions-2:
-#    entrypoint: "/bin/bash -c 'chown -R 25000:25000 /steam ; chown -R 25000:25000 /steamcmd ; chown -R 25000:25000 /server-files'"
-#    user: root
-#    image: "opensuse/leap"
-#    volumes:
-#      - steam-2:/steam:rw
-#      - steamcmd-2:/steamcmd:rw
-#      - server-files-2:/server-files:rw
+      - steam:/steam:rw
+      - steamcmd:/steamcmd:rw
+      - server-files:/server-files:rw
 volumes:
-  steam-1:
-  steamcmd-1:
-  server-files-1:
-#  steam-2:
-#  steamcmd-2:
-#  server-files-2:
+  steam:
+  steamcmd:
+  server-files:
 networks:
   asa-network:
     attachable: true

@@ -42,6 +42,10 @@ fi
 echo "Starting the ARK: Survival Ascended dedicated server..."
 echo "Start parameters: $ASA_START_PARAMS"
 
+if [ ! -L /home/gameserver/server-files/ShooterGame/Saved ]; then
+  ln -s /home/gameserver/saved /home/gameserver/server-files/ShooterGame/Saved
+fi
+
 export XDG_RUNTIME_DIR=/run/user/$(id -u)
 export STEAM_COMPAT_CLIENT_INSTALL_PATH=/home/gameserver/Steam
 export STEAM_COMPAT_DATA_PATH=$ASA_COMPAT_DATA
